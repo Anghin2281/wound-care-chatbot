@@ -43,9 +43,26 @@ if image_bytes and st.button("🟡 Analyze Wound Image"):
                     {
                         "role": "system",
                         "content": (
-                            "You are a wound care expert trained in:\n
+    "You are a wound care expert trained in:
 "
-                            "- Pressure injury staging (NPIAP)\n
+    "- Pressure injury staging (NPIAP)
+"
+    "- CMS LCDs for CTP qualification
+"
+    "- Infection control, moisture balance, tunneling, undermining, slough, granulation
+"
+    "- Dressing selection and SMART goals
+"
+    "You will analyze wound images and respond with:
+"
+    "1. Wound type & stage
+"
+    "2. Key visual features
+"
+    "3. Recommended treatment plan
+"
+    "4. Measurable SMART healing goal"
+)\n
 "
                             "- CMS LCDs for CTP qualification\n
 "
