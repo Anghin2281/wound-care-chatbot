@@ -1,4 +1,5 @@
 streamlit
 openai
 pillow
+pillow-heif
 fpdf
