@@ -13,8 +13,8 @@ openai.api_key = st.secrets.get("OPENAI_API_KEY")
 
 client = openai.OpenAI()
 
-st.set_page_config(page_title="Wound Care Chatbot (Manual Trigger)", layout="wide")
-st.markdown("<h1 style='color:#800000'>🩺 Wound Care Chatbot — Manual Audit + Image Trigger</h1>", unsafe_allow_html=True)
+st.set_page_config(page_title="Wound Care Chatbot (HEIC Support)", layout="wide")
+st.markdown("<h1 style='color:#800000'>🩺 Wound Care Chatbot — HEIC & Manual Trigger Enabled</h1>", unsafe_allow_html=True)
 
 if "messages" not in st.session_state:
     st.session_state["messages"] = []
@@ -35,7 +35,6 @@ if img_file:
         st.error("❌ Unsupported image. Please upload a valid wound photo.")
         st.stop()
 
-# Manual yellow image analysis button
 if image_bytes and st.button("🟡 Analyze Wound Image"):
     with st.spinner("Analyzing wound image..."):
         response = client.chat.completions.create(
@@ -58,11 +57,9 @@ if image_bytes and st.button("🟡 Analyze Wound Image"):
         st.session_state["messages"].append({"role": "assistant", "content": result})
         st.markdown(f"**WoundBot:** {result}")
 
-# Manual red audit button
 if doc_files and st.button("🔴 Start Documentation Audit"):
     st.success("📑 Audit of uploaded notes triggered. (Logic for note reading and GPT prompt would go here.)")
 
-# Chat input for all clinical/billing Q&A
 user_input = st.chat_input("Ask your wound care or billing question...")
 if user_input:
     st.session_state["messages"].append({"role": "user", "content": user_input})
@@ -72,14 +69,12 @@ if user_input:
         reply = response.choices[0].message.content
         st.session_state["messages"].append({"role": "assistant", "content": reply})
 
-# Display all chat messages
 for msg in st.session_state["messages"]:
     if msg["role"] == "user":
         st.markdown(f"**You:** {msg['content']}")
     else:
         st.markdown(f"**WoundBot:** {msg['content']}")
 
-# Optional export to PDF
 if st.button("📄 Export Chat to PDF"):
     pdf = FPDF()
     pdf.add_page()
