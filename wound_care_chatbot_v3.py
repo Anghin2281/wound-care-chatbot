@@ -10,11 +10,10 @@ from pillow_heif import register_heif_opener
 register_heif_opener()
 
 openai.api_key = st.secrets.get("OPENAI_API_KEY")
-
 client = openai.OpenAI()
 
-st.set_page_config(page_title="Wound Care Chatbot (GPT-4o Vision Fixed)", layout="wide")
-st.markdown("<h1 style='color:#800000'>🩺 Wound Care Chatbot — GPT-4o Vision Integration</h1>", unsafe_allow_html=True)
+st.set_page_config(page_title="Wound Care Chatbot (Image Format Fixed)", layout="wide")
+st.markdown("<h1 style='color:#800000'>🩺 Wound Care Chatbot — Supported Image Format Fix</h1>", unsafe_allow_html=True)
 
 if "messages" not in st.session_state:
     st.session_state["messages"] = []
@@ -22,17 +21,23 @@ if "messages" not in st.session_state:
 st.markdown("### 🔴 Upload Documentation Notes")
 doc_files = st.file_uploader("Upload wound notes (PDF, DOCX, TXT)", type=["pdf", "docx", "txt"], accept_multiple_files=True)
 
-st.markdown("### 🟡 Upload Wound Image (HEIC, JPG, PNG, etc.)")
+st.markdown("### 🟡 Upload Wound Image (JPG, PNG, HEIC, etc.)")
 img_file = st.file_uploader("Upload a wound photo", type=["jpg", "jpeg", "png", "bmp", "tif", "tiff", "heic", "webp"])
 
 image_bytes = None
+image_mime = "image/jpeg"  # default fallback MIME type
+
 if img_file:
-    image_bytes = img_file.read()
     try:
-        image = Image.open(BytesIO(image_bytes))
-        st.image(image, caption="Uploaded wound image", use_column_width=True)
+        image = Image.open(BytesIO(img_file.read()))
+        converted = BytesIO()
+        image = image.convert("RGB")
+        image.save(converted, format="JPEG")
+        converted.seek(0)
+        image_bytes = converted.read()
+        st.image(image, caption="Uploaded wound image (converted to JPEG)", use_column_width=True)
     except Exception as e:
-        st.error("❌ Unsupported image format.")
+        st.error("❌ Invalid image format or corrupted image file.")
         st.stop()
 
 if image_bytes and st.button("🟡 Analyze Wound Image"):
@@ -59,7 +64,7 @@ if image_bytes and st.button("🟡 Analyze Wound Image"):
             st.session_state["messages"].append({"role": "assistant", "content": result})
             st.markdown(f"**WoundBot:** {result}")
         except Exception as e:
-            st.error("❌ Error running GPT-4o image analysis.")
+            st.error("❌ GPT-4o image analysis failed.")
             st.exception(e)
 
 if doc_files and st.button("🔴 Start Documentation Audit"):
