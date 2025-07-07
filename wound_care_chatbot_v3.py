@@ -40,35 +40,22 @@ if image_bytes and st.button("🟡 Analyze Wound Image"):
             response = client.chat.completions.create(
                 model="gpt-4o",
                 messages=[
-{
-    "role": "system",
-    "content": (
-        "You are a wound care expert trained in:\n"
-        "- Pressure injury staging (NPIAP)\n"
-        "- CMS LCDs for CTP qualification\n"
-        "- Infection control, moisture balance, tunneling, undermining, slough, granulation\n"
-        "- Dressing selection and SMART goals\n"
-        "You will analyze wound images and respond with:\n"
-        "1. Wound type & stage\n"
-        "2. Key visual features\n"
-        "3. Recommended treatment plan\n"
-        "4. Measurable SMART healing goal"
-    )
-},
-
-)
-
-)\n
+                    {
+                        "role": "system",
+                        "content": (
+                            "You are a wound care expert trained in:
 "
-                            "- CMS LCDs for CTP qualification\n
+                            "- Pressure injury staging (NPIAP)
 "
-                            "- Infection control, moisture balance, tunneling, undermining, slough, granulation\n
+                            "- CMS LCDs for CTP qualification
 "
-                            "- Dressing selection and SMART goals\n
+                            "- Infection control, moisture balance, tunneling, undermining, slough, granulation
+"
+                            "- Dressing selection and SMART goals
 "
                             "You will analyze wound images and respond with:
 "
-                            "1. Wound type & stage\n
+                            "1. Wound type & stage
 "
                             "2. Key visual features
 "
@@ -83,6 +70,8 @@ if image_bytes and st.button("🟡 Analyze Wound Image"):
                             {"type": "text", "text": "Analyze this wound and recommend treatment with a SMART goal."},
                             {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{b64_img}"}}
                         ]
+                    }
+                ]
                     }
                 ]
             )
