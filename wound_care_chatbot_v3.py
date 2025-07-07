@@ -40,19 +40,22 @@ if image_bytes and st.button("🟡 Analyze Wound Image"):
             response = client.chat.completions.create(
                 model="gpt-4o",
                 messages=[
-                    {
-                        "role": "system",
-                        "content": (
-    "You are a wound care expert trained in:\n"
-    "- Pressure injury staging (NPIAP)\n"
-    "- CMS LCDs for CTP qualification\n"
-    "- Infection control, moisture balance, tunneling, undermining, slough, granulation\n"
-    "- Dressing selection and SMART goals\n"
-    "You will analyze wound images and respond with:\n"
-    "1. Wound type & stage\n"
-    "2. Key visual features\n"
-    "3. Recommended treatment plan\n"
-    "4. Measurable SMART healing goal"
+{
+    "role": "system",
+    "content": (
+        "You are a wound care expert trained in:\n"
+        "- Pressure injury staging (NPIAP)\n"
+        "- CMS LCDs for CTP qualification\n"
+        "- Infection control, moisture balance, tunneling, undermining, slough, granulation\n"
+        "- Dressing selection and SMART goals\n"
+        "You will analyze wound images and respond with:\n"
+        "1. Wound type & stage\n"
+        "2. Key visual features\n"
+        "3. Recommended treatment plan\n"
+        "4. Measurable SMART healing goal"
+    )
+},
+
 )
 
 )\n
