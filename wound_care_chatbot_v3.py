@@ -35,7 +35,7 @@ if img_file:
         image.save(converted, format="JPEG")
         converted.seek(0)
         image_bytes = converted.read()
-        st.image(image, caption="Uploaded wound image (converted to JPEG)", use_column_width=True)
+        st.image(image, caption="Uploaded wound image (converted to JPEG)", use_container_width=True)
     except Exception as e:
         st.error("❌ Invalid image format or corrupted image file.")
         st.stop()
