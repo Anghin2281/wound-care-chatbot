@@ -13,8 +13,8 @@ openai.api_key = st.secrets.get("OPENAI_API_KEY")
 
 client = openai.OpenAI()
 
-st.set_page_config(page_title="Wound Care Chatbot (HEIC Support)", layout="wide")
-st.markdown("<h1 style='color:#800000'>🩺 Wound Care Chatbot — HEIC & Manual Trigger Enabled</h1>", unsafe_allow_html=True)
+st.set_page_config(page_title="Wound Care Chatbot (GPT-4o Vision Fixed)", layout="wide")
+st.markdown("<h1 style='color:#800000'>🩺 Wound Care Chatbot — GPT-4o Vision Integration</h1>", unsafe_allow_html=True)
 
 if "messages" not in st.session_state:
     st.session_state["messages"] = []
@@ -22,7 +22,7 @@ if "messages" not in st.session_state:
 st.markdown("### 🔴 Upload Documentation Notes")
 doc_files = st.file_uploader("Upload wound notes (PDF, DOCX, TXT)", type=["pdf", "docx", "txt"], accept_multiple_files=True)
 
-st.markdown("### 🟡 Upload Wound Image (All Types)")
+st.markdown("### 🟡 Upload Wound Image (HEIC, JPG, PNG, etc.)")
 img_file = st.file_uploader("Upload a wound photo", type=["jpg", "jpeg", "png", "bmp", "tif", "tiff", "heic", "webp"])
 
 image_bytes = None
@@ -32,33 +32,38 @@ if img_file:
         image = Image.open(BytesIO(image_bytes))
         st.image(image, caption="Uploaded wound image", use_column_width=True)
     except Exception as e:
-        st.error("❌ Unsupported image. Please upload a valid wound photo.")
+        st.error("❌ Unsupported image format.")
         st.stop()
 
 if image_bytes and st.button("🟡 Analyze Wound Image"):
-    with st.spinner("Analyzing wound image..."):
-        response = client.chat.completions.create(
-            model="gpt-4o",
-            messages=[
-                {
-                    "role": "system",
-                    "content": "You are a wound care expert. Analyze the wound photo and suggest treatment plan with measurable SMART goals."
-                },
-                {
-                    "role": "user",
-                    "content": [
-                        {"type": "text", "text": "Analyze this wound and suggest treatment."},
-                        {"type": "image_url", "image_url": {"url": "data:image/heic;base64," + base64.b64encode(image_bytes).decode()}}
-                    ]
-                }
-            ]
-        )
-        result = response.choices[0].message.content
-        st.session_state["messages"].append({"role": "assistant", "content": result})
-        st.markdown(f"**WoundBot:** {result}")
+    with st.spinner("Analyzing wound image with GPT-4o..."):
+        b64_img = base64.b64encode(image_bytes).decode()
+        try:
+            response = client.chat.completions.create(
+                model="gpt-4o",
+                messages=[
+                    {
+                        "role": "system",
+                        "content": "You are a wound care expert trained in pressure injuries, wound staging, dressings, CTP rules, and infection protocols. Analyze the wound image and give a treatment plan + SMART goal."
+                    },
+                    {
+                        "role": "user",
+                        "content": [
+                            {"type": "text", "text": "Please analyze this wound and suggest a treatment plan."},
+                            {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{b64_img}"}}
+                        ]
+                    }
+                ]
+            )
+            result = response.choices[0].message.content
+            st.session_state["messages"].append({"role": "assistant", "content": result})
+            st.markdown(f"**WoundBot:** {result}")
+        except Exception as e:
+            st.error("❌ Error running GPT-4o image analysis.")
+            st.exception(e)
 
 if doc_files and st.button("🔴 Start Documentation Audit"):
-    st.success("📑 Audit of uploaded notes triggered. (Logic for note reading and GPT prompt would go here.)")
+    st.success("📑 Documentation audit triggered (logic placeholder).")
 
 user_input = st.chat_input("Ask your wound care or billing question...")
 if user_input:
