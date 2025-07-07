@@ -62,6 +62,23 @@ if image_bytes and st.button("🟡 Analyze Wound Image"):
     "3. Recommended treatment plan
 "
     "4. Measurable SMART healing goal"
+)
+"
+    "- CMS LCDs for CTP qualification
+"
+    "- Infection control, moisture balance, tunneling, undermining, slough, granulation
+"
+    "- Dressing selection and SMART goals
+"
+    "You will analyze wound images and respond with:
+"
+    "1. Wound type & stage
+"
+    "2. Key visual features
+"
+    "3. Recommended treatment plan
+"
+    "4. Measurable SMART healing goal"
 )\n
 "
                             "- CMS LCDs for CTP qualification\n
