@@ -9,38 +9,39 @@ openai.api_key = st.secrets.get("OPENAI_API_KEY")
 client = openai.OpenAI()
 
 st.set_page_config(page_title="Wound Care Chatbot", layout="wide")
-st.markdown("<h1 style='color:#800000'>🩺 Wound Care Chatbot — Clinical & CMS Expert</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='color:#800000'>🩺 Wound Care Chatbot — Text Only</h1>", unsafe_allow_html=True)
 
 if "messages" not in st.session_state:
     st.session_state["messages"] = []
 
 # Text-based Q&A chatbot
-user_input = st.chat_input("Ask a wound care, infection, ICD-10/CPT, dressing, or CMS documentation question...")
+user_input = st.chat_input("Ask a wound care, documentation, or clinical coding question...")
 if user_input:
     st.session_state["messages"].append({"role": "user", "content": user_input})
     with st.spinner("WoundBot is thinking..."):
-        full_prompt = [
-            {"role": "system", "content": (
-                "You are a wound care expert trained in:
+        full_prompt = [{"role": "system", "content": (
+            "You are a wound care expert trained in:
 "
-                "- All major CMS LCDs for CTP and wound billing (L35125, L35041, A56696, L37228, etc.)
+            "- Pressure injury staging (NPIAP)
 "
-                "- ICD-10 codes for chronic wounds, infections, and pressure injuries
+            "- CMS LCDs for CTP qualification and wound documentation
 "
-                "- CPT codes for debridement, grafts, and wound procedures
+            "- Wound infections: identification and clinical signs
 "
-                "- Infection management (topicals, antibiotics, wound cultures)
+            "- Moisture balance, tunneling, undermining, slough, granulation
 "
-                "- Dressing selection by wound type (slough, undermining, tunneling, drainage)
+            "- Proper dressing selection (hydrocolloid, alginate, foam, etc.)
 "
-                "- SMART goal creation for wound healing
+            "- Graft recommendations by layer (1–4 layer amniotic grafts)
 "
-                "- Graft layer selection based on wound depth, drainage, and tissue status
+            "- Pharmaceutical and topical options to treat infected wounds
 "
-                "- Documenting conservative care, plan of care, and clinical justification
+            "- ICD-10 coding for wounds (e.g., L97.x, I83.0x, L89.x)
 "
-            )}
-        ] + st.session_state["messages"]
+            "- CPT coding for debridement and grafts (e.g., 97597, 15271)
+"
+            "- SMART goal planning for wound healing"
+        )}] + st.session_state["messages"]
         response = client.chat.completions.create(model="gpt-4o", messages=full_prompt)
         reply = response.choices[0].message.content
         st.session_state["messages"].append({"role": "assistant", "content": reply})
@@ -52,7 +53,7 @@ for msg in st.session_state["messages"]:
     else:
         st.markdown(f"**WoundBot:** {msg['content']}")
 
-# Export chat to PDF
+# PDF export
 if st.button("📄 Export Chat to PDF"):
     pdf = FPDF()
     pdf.add_page()
@@ -71,7 +72,7 @@ if st.button("📄 Export Chat to PDF"):
             b64 = base64.b64encode(f.read()).decode()
             st.markdown(f'<a href="data:application/octet-stream;base64,{b64}" download="WoundCareChat.pdf">Download Chat PDF</a>', unsafe_allow_html=True)
 
-# Reset all
+# Reset interface
 if st.button("🔁 Reset All"):
     st.session_state.clear()
     st.experimental_rerun()
