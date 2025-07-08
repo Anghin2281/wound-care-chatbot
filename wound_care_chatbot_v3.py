@@ -63,8 +63,3 @@ if st.button("📄 Export Chat to PDF"):
         with open(tmp.name, "rb") as f:
             b64 = base64.b64encode(f.read()).decode()
             st.markdown(f'<a href="data:application/octet-stream;base64,{b64}" download="WoundCareChat.pdf">Download Chat PDF</a>', unsafe_allow_html=True)
-
-# Reset session
-if st.button("🔁 Reset All"):
-    st.session_state.clear()
-    st.experimental_rerun()
