@@ -1,3 +1,4 @@
+
 import streamlit as st
 import openai
 import tempfile
@@ -11,19 +12,6 @@ register_heif_opener()
 
 openai.api_key = st.secrets.get("OPENAI_API_KEY")
 client = openai.OpenAI()
-
-
-st.markdown("### 🔴 Upload Documentation Notes")
-doc_files = st.file_uploader("Upload wound documentation (PDF, DOCX, TXT)", type=["pdf", "docx", "txt"], accept_multiple_files=True)
-
-# Red button: Audit uploaded documentation notes (placeholder logic)
-if doc_files and st.button("🔴 Start Documentation Audit"):
-    st.success("📑 Documentation audit triggered.")
-    st.session_state["messages"].append({
-        "role": "assistant",
-        "content": "📋 Placeholder: CMS-compliant audit logic will run here. Each document will be checked against LCDs and flagged for compliance."
-    })
-
 
 st.set_page_config(page_title="Wound Care Chatbot", layout="wide")
 st.markdown("<h1 style='color:#800000'>🩺 Wound Care Chatbot — Vision + Chat + Reset</h1>", unsafe_allow_html=True)
@@ -56,29 +44,19 @@ if image_bytes and st.button("🟡 Analyze Wound Image"):
                     "content": (
                         "You are a wound care expert trained in:
 "
-                        "- Pressure injury staging (NPIAP)
+                        "- Identifying undermining, tunneling, exudate, eschar, slough, granulation
 "
-                        "- CMS LCDs for CTP qualification
+                        "- Interpreting NPIAP pressure staging
 "
-                        "- Infection control, moisture balance, tunneling, undermining, slough, granulation
+                        "- Describing wound bed and periwound status
 "
-                        "- Dressing selection and SMART goals
-"
-                        "You will analyze wound images and respond with:
-"
-                        "1. Wound type & stage
-"
-                        "2. Key visual features
-"
-                        "3. Recommended treatment plan
-"
-                        "4. Measurable SMART healing goal"
+                        "ONLY respond with visual features and wound description. DO NOT suggest treatment."
                     )
                 },
                 {
                     "role": "user",
                     "content": [
-                        {"type": "text", "text": "Analyze this wound and recommend treatment with a SMART goal."},
+                        {"type": "text", "text": "Describe this wound based on its visual characteristics only."},
                         {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{b64_img}"}}
                     ]
                 }
@@ -91,12 +69,33 @@ if image_bytes and st.button("🟡 Analyze Wound Image"):
             st.error("❌ GPT-4o failed to analyze the image.")
             st.exception(e)
 
-# Text-based Q&A chatbot
+# Text-based chatbot
 user_input = st.chat_input("Ask a wound care or documentation question...")
 if user_input:
     st.session_state["messages"].append({"role": "user", "content": user_input})
     with st.spinner("WoundBot is thinking..."):
-        full_prompt = [{"role": "system", "content": "You are a wound care expert answering clinical, billing, and CMS-related questions."}] + st.session_state["messages"]
+        full_prompt = [
+            {
+                "role": "system",
+                "content": (
+                    "You are a wound care expert trained in:
+"
+                    "- Identifying and managing wound infections
+"
+                    "- Selecting appropriate dressings for each wound type and stage
+"
+                    "- ICD-10 and CPT coding for wound types, treatments, and CTP application
+"
+                    "- Recommending CTPs by graft layer (1–4 ply) based on wound presentation
+"
+                    "- Choosing topicals and pharmaceuticals for bacterial, fungal, and mixed infections
+"
+                    "- CMS LCD compliance, healing rate benchmarks, SMART care planning
+"
+                    "Answer questions with clear explanations and clinical reasoning. Use medical terminology."
+                )
+            }
+        ] + st.session_state["messages"]
         response = client.chat.completions.create(model="gpt-4o", messages=full_prompt)
         reply = response.choices[0].message.content
         st.session_state["messages"].append({"role": "assistant", "content": reply})
@@ -108,7 +107,7 @@ for msg in st.session_state["messages"]:
     else:
         st.markdown(f"**WoundBot:** {msg['content']}")
 
-# PDF export
+# Export to PDF
 if st.button("📄 Export Chat to PDF"):
     pdf = FPDF()
     pdf.add_page()
@@ -127,7 +126,7 @@ if st.button("📄 Export Chat to PDF"):
             b64 = base64.b64encode(f.read()).decode()
             st.markdown(f'<a href="data:application/octet-stream;base64,{b64}" download="WoundCareChat.pdf">Download Chat PDF</a>', unsafe_allow_html=True)
 
-# Reset everything
+# Reset all
 if st.button("🔁 Reset All"):
     st.session_state.clear()
     st.experimental_rerun()
