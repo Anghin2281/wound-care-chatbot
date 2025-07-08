@@ -44,19 +44,25 @@ if image_bytes and st.button("🟡 Analyze Wound Image"):
                     "content": (
                         "You are a wound care expert trained in:
 "
-                        "- Identifying undermining, tunneling, exudate, eschar, slough, granulation
+                        "- Pressure injury staging (NPIAP)
 "
-                        "- Interpreting NPIAP pressure staging
+                        "- CMS LCDs for CTP qualification
 "
-                        "- Describing wound bed and periwound status
+                        "- Infection control, moisture balance, tunneling, undermining, slough, granulation
 "
-                        "ONLY respond with visual features and wound description. DO NOT suggest treatment."
+                        "- Dressing selection and SMART goals
+"
+                        "You will analyze wound images and respond with:
+"
+                        "1. Wound type & stage
+"
+                        "2. Key visual features only"
                     )
                 },
                 {
                     "role": "user",
                     "content": [
-                        {"type": "text", "text": "Describe this wound based on its visual characteristics only."},
+                        {"type": "text", "text": "Identify the wound characteristics only — no treatment plan."},
                         {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{b64_img}"}}
                     ]
                 }
@@ -69,45 +75,21 @@ if image_bytes and st.button("🟡 Analyze Wound Image"):
             st.error("❌ GPT-4o failed to analyze the image.")
             st.exception(e)
 
-# Text-based chatbot
 user_input = st.chat_input("Ask a wound care or documentation question...")
 if user_input:
     st.session_state["messages"].append({"role": "user", "content": user_input})
     with st.spinner("WoundBot is thinking..."):
-        full_prompt = [
-            {
-                "role": "system",
-                "content": (
-                    "You are a wound care expert trained in:
-"
-                    "- Identifying and managing wound infections
-"
-                    "- Selecting appropriate dressings for each wound type and stage
-"
-                    "- ICD-10 and CPT coding for wound types, treatments, and CTP application
-"
-                    "- Recommending CTPs by graft layer (1–4 ply) based on wound presentation
-"
-                    "- Choosing topicals and pharmaceuticals for bacterial, fungal, and mixed infections
-"
-                    "- CMS LCD compliance, healing rate benchmarks, SMART care planning
-"
-                    "Answer questions with clear explanations and clinical reasoning. Use medical terminology."
-                )
-            }
-        ] + st.session_state["messages"]
+        full_prompt = [{"role": "system", "content": "You are a wound care expert answering clinical, billing, and CMS-related questions, including infection management, dressing selection, ICD-10/CPT coding, pharmaceutical treatments, and graft layer selection."}] + st.session_state["messages"]
         response = client.chat.completions.create(model="gpt-4o", messages=full_prompt)
         reply = response.choices[0].message.content
         st.session_state["messages"].append({"role": "assistant", "content": reply})
 
-# Display chat history
 for msg in st.session_state["messages"]:
     if msg["role"] == "user":
         st.markdown(f"**You:** {msg['content']}")
     else:
         st.markdown(f"**WoundBot:** {msg['content']}")
 
-# Export to PDF
 if st.button("📄 Export Chat to PDF"):
     pdf = FPDF()
     pdf.add_page()
@@ -126,7 +108,6 @@ if st.button("📄 Export Chat to PDF"):
             b64 = base64.b64encode(f.read()).decode()
             st.markdown(f'<a href="data:application/octet-stream;base64,{b64}" download="WoundCareChat.pdf">Download Chat PDF</a>', unsafe_allow_html=True)
 
-# Reset all
 if st.button("🔁 Reset All"):
     st.session_state.clear()
     st.experimental_rerun()
