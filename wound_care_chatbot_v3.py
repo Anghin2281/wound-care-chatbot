@@ -19,25 +19,20 @@ if user_input:
     st.session_state["messages"].append({"role": "user", "content": user_input})
     with st.spinner("WoundBot is thinking..."):
         full_prompt = [
-            {"role": "system", "content": (
-                "You are a wound care expert trained in:
-"
-                "- Pressure injury staging (NPIAP)
-"
-                "- CMS LCDs for CTP qualification
-"
-                "- Infection control, moisture balance, tunneling, undermining, slough, granulation
-"
-                "- ICD-10 and CPT code usage for wound care
-"
-                "- Dressing selection and application by wound type
-"
-                "- Graft recommendations (single, double, triple layer)
-"
-                "- Appropriate pharmaceuticals and topicals to treat infections
-"
-                "Answer all questions in a clinical, evidence-based manner."
-            )}
+            {
+                "role": "system",
+                "content": (
+                    "You are a wound care expert trained in:\n"
+                    "- Pressure injury staging (NPIAP)\n"
+                    "- CMS LCDs for CTP qualification\n"
+                    "- Infection control, moisture balance, tunneling, undermining, slough, granulation\n"
+                    "- ICD-10 and CPT code usage for wound care\n"
+                    "- Dressing selection and application by wound type\n"
+                    "- Graft recommendations (single, double, triple layer)\n"
+                    "- Appropriate pharmaceuticals and topicals to treat infections\n"
+                    "Answer all questions in a clinical, evidence-based manner."
+                )
+            }
         ] + st.session_state["messages"]
         response = client.chat.completions.create(model="gpt-4o", messages=full_prompt)
         reply = response.choices[0].message.content
